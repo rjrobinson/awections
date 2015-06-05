@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20150605214431) do
+ActiveRecord::Schema.define(version: 20150605223931) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -24,6 +24,17 @@ ActiveRecord::Schema.define(version: 20150605214431) do
   end
 
   add_index "auctions", ["product_id"], name: "index_auctions_on_product_id", using: :btree
+
+  create_table "bids", force: :cascade do |t|
+    t.integer  "user_id"
+    t.integer  "auction_id"
+    t.float    "value"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+  end
+
+  add_index "bids", ["auction_id"], name: "index_bids_on_auction_id", using: :btree
+  add_index "bids", ["user_id"], name: "index_bids_on_user_id", using: :btree
 
   create_table "products", force: :cascade do |t|
     t.string   "name"
@@ -55,5 +66,7 @@ ActiveRecord::Schema.define(version: 20150605214431) do
   add_index "users", ["reset_password_token"], name: "index_users_on_reset_password_token", unique: true, using: :btree
 
   add_foreign_key "auctions", "products"
+  add_foreign_key "bids", "auctions"
+  add_foreign_key "bids", "users"
   add_foreign_key "products", "users"
 end
