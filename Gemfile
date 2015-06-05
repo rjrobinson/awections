@@ -17,6 +17,7 @@ gem 'devise'
 gem 'faye-websocket'
 gem 'pry-rails'
 gem 'hirb'
+gem "awesome_print"
 gem 'sdoc', '~> 0.4.0', group: :doc
 group :development, :test do
 	# gem 'byebug'
