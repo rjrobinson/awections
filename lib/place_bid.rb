@@ -10,10 +10,10 @@ class PlaceBid
 	def execute
 		@auction = Auction.find @auction_id
 
-		# if auction.ended? && auction.top_bid.user_id == @user_id
-		# 	@status = :won
-		# 	return false
-		# end
+		if auction.ended? && auction.top_bid.user_id == @user_id
+			@status = :won
+			return false
+		end
 
 		if @value <= auction.current_bid
 			return false

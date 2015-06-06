@@ -1,3 +1,5 @@
+require File.expand_path "../place_bid", __FILE__
+
 class AuctionSocket
 
 	def initialize app
@@ -8,16 +10,14 @@ class AuctionSocket
 	def call env
 		@env = env
 		if socket_request?
-			socket = Faye::WebSocket.new env
+			socket = spawn_socket
 			socket.rack_response
-
-			socket.on :open do
-				socket.send "Connected"
-			end
 		else
 			@app.call env
 		end
 	end
+
+
 
 	private
 
@@ -25,5 +25,42 @@ class AuctionSocket
 
 	def socket_request?
 		Faye::WebSocket.websocket? env
+	end
+
+	def spawn_socket
+		socket = Faye::WebSocket.new env
+		socket.on :open do
+			socket.send "Connected . . ."
+		end
+
+		socket.on :message do |evt|
+			socket.send evt.data
+			begin
+				tokens = evt.data.split(" ")
+				operation = tokens.delete_at 0
+
+				case operation
+				when "bid"
+					bid socket, tokens
+				end
+			rescue Exception => e
+				p e
+				p e.backtrace
+			end
+		end
+
+		def bid(socket, tokens)
+			service = PlaceBid.new(
+				auction_id: tokens[0],
+				user_id: tokens[1],
+				value: tokens[2]
+			)
+
+			if service.execute
+				socket.send "bidok"
+			else
+				socket.send "underbid #{service.auction.current_bid}"
+			end
+		end
 	end
 end
